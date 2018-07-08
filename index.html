@@ -1,0 +1,161 @@
+<html>
+  <h1>PONG</h1>
+  <canvas id="gameCanvas" width="800" height="600"></canvas>
+
+<script>
+
+let canvas
+let cC
+
+let player1Score = 0
+let player2Score = 0
+const WINNING_SCORE = 1
+let showingWinScreen = true
+
+let ballX = 50
+let ballSpeedX = 15
+
+let ballY = 10
+let ballSpeedY = 4
+
+const PADDLE_HEIGHT = 100
+const PADDLE_WIDTH = 10
+let paddle1Y = 250
+let paddle2Y = 250
+
+window.onload = () => {
+  canvas = document.getElementById('gameCanvas')
+  cC = canvas.getContext('2d')
+
+  drawEverything()
+ 
+  // 30 frames per second
+  setInterval(() => { drawEverything(), moveEverything() }, 1000/30)
+
+  canvas.addEventListener('mousemove', (e) => {
+    const mousePosition = calculateMousePos(e)
+    paddle1Y = mousePosition.y - (PADDLE_HEIGHT / 2)
+  })
+
+  canvas.addEventListener('click', handleMouseClick)
+}
+
+const handleMouseClick = (e) => {
+  if (showingWinScreen) {
+    player1Score = 0
+    player2Score = 0
+    showingWinScreen = false
+  }
+}
+
+const computerMovement = () => {
+  let paddle2YCenter = paddle2Y + (PADDLE_HEIGHT / 2)
+
+  if (paddle2YCenter < (ballY - 35)) {
+    paddle2Y += 6
+  } else if (paddle2YCenter > (ballY + 35)) {
+    paddle2Y -= 6
+  }
+}
+
+const moveEverything = () => {
+  if (showingWinScreen) return
+
+  computerMovement()
+
+  ballX += ballSpeedX
+  ballY += ballSpeedY
+
+  if (ballX > canvas.width) {
+    if (ballY > paddle2Y && ballY < paddle2Y + PADDLE_HEIGHT){
+      ballSpeedX = -ballSpeedX
+
+      // ball control. ball hits closer to edge of paddle, Y movement bigger
+      const deltaY = ballY - (paddle2Y + PADDLE_HEIGHT / 2)
+      ballSpeedY = deltaY * 0.35
+    }
+    else { player1Score += 1; ballReset() }
+  }
+
+  if (ballX < 0) {
+    if (ballY > paddle1Y && ballY < paddle1Y + PADDLE_HEIGHT) {
+      ballSpeedX = -ballSpeedX
+      
+      // ball control. ball hits closer to edge of paddle, Y movement bigger
+      const deltaY = ballY - (paddle1Y + PADDLE_HEIGHT / 2)
+      ballSpeedY = deltaY * 0.35
+    }
+    else { player2Score += 1; ballReset() }
+  }
+
+  if (ballY < 0) ballSpeedY = -ballSpeedY
+  if (ballY > canvas.height) ballSpeedY = ballSpeedY = -ballSpeedY
+} 
+
+const drawEverything = () => {
+  // blanks out the screen with black
+  colorRect(0, 0, canvas.width, canvas.height, 'black')
+  drawNet()
+
+  cC.font='36px Tahoma'
+  cC.fillText(player1Score, 20, 50)
+  cC.fillText(player2Score, canvas.width - 40, 50)
+
+  if (showingWinScreen) {
+    cC.fillStyle = 'white'
+    cC.fillText('click to continue', canvas.width / 2 - 40, 200)
+    return
+  }
+
+  // USER tennis paddle
+  colorRect(0, paddle1Y, PADDLE_WIDTH, PADDLE_HEIGHT, 'white')
+
+  // COMPUTER paddle 2
+  colorRect(canvas.width - PADDLE_WIDTH, paddle2Y, PADDLE_WIDTH, PADDLE_HEIGHT, 'white')
+
+  // our ball
+  colorCircle(ballX, ballY, 10, 'white')
+
+
+}
+
+const drawNet = () => {
+  for (let i = 0; i < canvas.height; i += 40) {
+    colorRect(canvas.width/2 - 1, i, 1, 20, 'white')
+  }
+}
+
+const colorRect = (leftX, topY, width, height, drawColor) => {
+  cC.fillStyle = drawColor
+  cC.fillRect(leftX, topY, width, height)
+}
+
+const colorCircle = (centerX, centerY, radius, drawColor) => {
+  cC.fillStyle = drawColor
+  cC.beginPath()
+  cC.arc(centerX, centerY, radius, 0, Math.PI * 2, true)
+  cC.fill()
+}
+
+const ballReset = () => {
+  if (player1Score >= WINNING_SCORE || player2Score >= WINNING_SCORE) {
+    showingWinScreen = true
+  }
+
+  ballSpeedX = ballSpeedX = -ballSpeedX
+
+  ballX = canvas.width / 2
+  ballY = canvas.height / 2
+}
+
+const calculateMousePos = (event) => {
+  const rect = canvas.getBoundingClientRect()
+  const root = document.documentElement
+  const mouseX = event.clientX - rect.left - root.scrollLeft
+  const mouseY = event.clientY - rect.top - root.scrollTop
+  
+  return { x: mouseX, y: mouseY }
+}
+
+</script>
+</html>
