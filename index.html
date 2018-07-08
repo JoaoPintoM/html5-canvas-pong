@@ -9,16 +9,17 @@ let cC
 
 let player1Score = 0
 let player2Score = 0
-const WINNING_SCORE = 1
-let showingWinScreen = true
+const WINNING_SCORE = 3
+let showingWinScreen = false
+let showingIntro = true
 
 let ballX = 50
-let ballSpeedX = 15
+let ballSpeedX = 8
 
 let ballY = 10
 let ballSpeedY = 4
 
-const PADDLE_HEIGHT = 100
+const PADDLE_HEIGHT = 120
 const PADDLE_WIDTH = 10
 let paddle1Y = 250
 let paddle2Y = 250
@@ -30,7 +31,7 @@ window.onload = () => {
   drawEverything()
  
   // 30 frames per second
-  setInterval(() => { drawEverything(), moveEverything() }, 1000/30)
+  setInterval(() => { drawEverything(), moveEverything() }, 1000/60)
 
   canvas.addEventListener('mousemove', (e) => {
     const mousePosition = calculateMousePos(e)
@@ -38,6 +39,8 @@ window.onload = () => {
   })
 
   canvas.addEventListener('click', handleMouseClick)
+
+  setTimeout(() => {showingIntro = false}, 2000)
 }
 
 const handleMouseClick = (e) => {
@@ -52,38 +55,39 @@ const computerMovement = () => {
   let paddle2YCenter = paddle2Y + (PADDLE_HEIGHT / 2)
 
   if (paddle2YCenter < (ballY - 35)) {
-    paddle2Y += 6
+    paddle2Y += 8
   } else if (paddle2YCenter > (ballY + 35)) {
-    paddle2Y -= 6
+    paddle2Y -= 8
   }
 }
 
 const moveEverything = () => {
   if (showingWinScreen) return
+  if (showingIntro) return
 
   computerMovement()
 
   ballX += ballSpeedX
   ballY += ballSpeedY
 
-  if (ballX > canvas.width) {
+  if (ballX > canvas.width - PADDLE_WIDTH) {
     if (ballY > paddle2Y && ballY < paddle2Y + PADDLE_HEIGHT){
       ballSpeedX = -ballSpeedX
 
       // ball control. ball hits closer to edge of paddle, Y movement bigger
       const deltaY = ballY - (paddle2Y + PADDLE_HEIGHT / 2)
-      ballSpeedY = deltaY * 0.35
+      ballSpeedY = deltaY * 0.30
     }
     else { player1Score += 1; ballReset() }
   }
 
-  if (ballX < 0) {
+  if (ballX < 0 + PADDLE_WIDTH) {
     if (ballY > paddle1Y && ballY < paddle1Y + PADDLE_HEIGHT) {
       ballSpeedX = -ballSpeedX
       
       // ball control. ball hits closer to edge of paddle, Y movement bigger
       const deltaY = ballY - (paddle1Y + PADDLE_HEIGHT / 2)
-      ballSpeedY = deltaY * 0.35
+      ballSpeedY = deltaY * 0.30
     }
     else { player2Score += 1; ballReset() }
   }
@@ -95,6 +99,13 @@ const moveEverything = () => {
 const drawEverything = () => {
   // blanks out the screen with black
   colorRect(0, 0, canvas.width, canvas.height, 'black')
+
+  if (showingIntro) {
+    drawIntro()
+    return
+  }
+  
+  cC.fillStyle = 'white'
   drawNet()
 
   cC.font='36px Tahoma'
@@ -102,10 +113,20 @@ const drawEverything = () => {
   cC.fillText(player2Score, canvas.width - 40, 50)
 
   if (showingWinScreen) {
+    cC.font='36px Tahoma'
     cC.fillStyle = 'white'
-    cC.fillText('click to continue', canvas.width / 2 - 40, 200)
+    if (player1Score >= WINNING_SCORE) {
+      cC.fillText('You won !', canvas.width / 2 - 70, 300)
+    }
+
+    if (player2Score >= WINNING_SCORE) {
+      cC.fillText('(┛ಠ_ಠ)┛彡┻━┻', canvas.width / 2 - 160, 200)
+      cC.font='16px Tahoma'
+      cC.fillText('click to restart', canvas.width / 2 - 50, 450)
+    }
     return
   }
+  
 
   // USER tennis paddle
   colorRect(0, paddle1Y, PADDLE_WIDTH, PADDLE_HEIGHT, 'white')
@@ -115,14 +136,25 @@ const drawEverything = () => {
 
   // our ball
   colorCircle(ballX, ballY, 10, 'white')
-
-
 }
 
 const drawNet = () => {
-  for (let i = 0; i < canvas.height; i += 40) {
-    colorRect(canvas.width/2 - 1, i, 1, 20, 'white')
+  for (let i = 0; i < canvas.height + 10; i += 31) {
+    colorRect(canvas.width/2 - 1, i, 1, 24, 'white')
   }
+}
+
+const drawIntro = () =>  {
+  // drawNet()
+  cC.fillStyle = 'white'
+  cC.font='20px monospace'
+  cC.fillText('tableFlip studios', canvas.width / 2 - 90, 30)
+  
+  cC.font='76px monospace'
+  cC.fillText('PONG', canvas.width / 2 - 75, 300)
+
+  cC.font='12px monospace'
+  cC.fillText('by Joao Pinto', canvas.width - 110, canvas.height - 20)
 }
 
 const colorRect = (leftX, topY, width, height, drawColor) => {
@@ -143,6 +175,7 @@ const ballReset = () => {
   }
 
   ballSpeedX = ballSpeedX = -ballSpeedX
+  ballSpeedY = 4
 
   ballX = canvas.width / 2
   ballY = canvas.height / 2
