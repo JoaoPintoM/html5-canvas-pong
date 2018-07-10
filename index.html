@@ -27,7 +27,7 @@ let paddle2Y = 250
 window.onresize = () => {
   const w = document.getElementById('gameZone').offsetWidth
   canvas.setAttribute('width', w)
-  canvas.setAttribute('height', (w * 3) / 4)
+  canvas.setAttribute('height', (w * 9) / 16)
 }
 
 window.onload = () => {
@@ -35,9 +35,15 @@ window.onload = () => {
   
   const w = document.getElementById('gameZone').offsetWidth
   canvas.setAttribute('width', w)
-  canvas.setAttribute('height', (w * 3) / 4)
+  canvas.setAttribute('height', (w * 9) / 16)
 
   cC = canvas.getContext('2d')
+
+  belgium = new Image();
+  belgium.src = 'belgium.png';
+
+  france = new Image();
+  france.src = 'france.png';
 
   drawEverything()
  
@@ -125,6 +131,9 @@ const drawEverything = () => {
   
   cC.fillStyle = 'white'
   drawNet()
+
+  cC.drawImage(belgium, 50, 15, 100, 50);
+  cC.drawImage(france, canvas.width - 150, 15, 100, 50);
 
   cC.font='36px Tahoma'
   cC.fillText(player1Score, 20, 50)
