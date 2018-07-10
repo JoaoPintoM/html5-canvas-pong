@@ -1,7 +1,7 @@
 <html>
-  <h1>PONG</h1>
-  <canvas id="gameCanvas" width="800" height="600"></canvas>
-
+  <div id="gameZone">
+    <canvas id="gameCanvas" width="800" height="600"></canvas>
+  </div>
 <script>
 
 let canvas
@@ -11,7 +11,7 @@ let player1Score = 0
 let player2Score = 0
 const WINNING_SCORE = 3
 let showingWinScreen = false
-let showingIntro = true
+let showingIntro = false
 
 let ballX = 50
 let ballSpeedX = 8
@@ -24,13 +24,24 @@ const PADDLE_WIDTH = 10
 let paddle1Y = 250
 let paddle2Y = 250
 
+window.onresize = () => {
+  const w = document.getElementById('gameZone').offsetWidth
+  canvas.setAttribute('width', w)
+  canvas.setAttribute('height', (w * 3) / 4)
+}
+
 window.onload = () => {
   canvas = document.getElementById('gameCanvas')
+  
+  const w = document.getElementById('gameZone').offsetWidth
+  canvas.setAttribute('width', w)
+  canvas.setAttribute('height', (w * 3) / 4)
+
   cC = canvas.getContext('2d')
 
   drawEverything()
  
-  // 30 frames per second
+  // 60 frames per second
   setInterval(() => { drawEverything(), moveEverything() }, 1000/60)
 
   canvas.addEventListener('mousemove', (e) => {
