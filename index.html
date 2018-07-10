@@ -50,6 +50,7 @@ window.onload = () => {
   })
 
   canvas.addEventListener('click', handleMouseClick)
+  canvas.addEventListener('touchmove', handleMove, false);
 
   setTimeout(() => {showingIntro = false}, 2000)
 }
@@ -60,6 +61,12 @@ const handleMouseClick = (e) => {
     player2Score = 0
     showingWinScreen = false
   }
+}
+
+const handleMove = (evt) => {
+  evt.preventDefault();
+  var touches = evt.changedTouches;
+  paddle1Y = touches[0].clientY - (PADDLE_HEIGHT / 2)
 }
 
 const computerMovement = () => {
